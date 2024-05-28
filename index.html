@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="w-screen h-screen flex flex-col justify-center items-center">
+    <h1 class="text-6xl font-semibold select-none text-neutral-200"></h1>
+
+    <script>
+        const statusConfig = {
+            idle: {
+                backgroundColor: "#3f403f",
+                cursor: "pointer",
+                text: "Click to start!",
+            },
+            waiting: {
+                backgroundColor: "#4361ee",
+                cursor: "wait",
+                text: "Wait for red...",
+            },
+            click: {
+                backgroundColor: "#c1121f",
+                cursor: "pointer",
+                text: "Click!",
+            },
+            clicked: {
+                backgroundColor: "#32936f",
+                cursor: "pointer",
+                text: "Clicked!",
+            }
+        }
+
+        let currentStatus = "idle"
+
+        let startTime = null
+        let clickTime = null
+
+        const h1 = document.querySelector("h1")
+
+        function updateStatus(status) {
+            currentStatus = status
+
+            h1.textContent = statusConfig[status].text
+
+            document.body.style.backgroundColor = statusConfig[status].backgroundColor
+
+            document.body.style.cursor = statusConfig[status].cursor
+        }
+
+        updateStatus("idle")
+
+        document.body.addEventListener("click", () => {
+            if (currentStatus === "idle") {
+                updateStatus("waiting")
+
+                setTimeout(() => {
+                    updateStatus("click")
+
+                    startTime = Date.now()
+                }, 500 + Math.floor(Math.random() * 4000))
+            } else if (currentStatus === "click") {
+                updateStatus("clicked")
+
+                clickTime = Date.now()
+
+                reactionTime = ((clickTime - startTime) / 1000) * 1000
+
+                h1.textContent = `Reaction time: ${reactionTime} ms`
+
+                let reactionTimeRecord = localStorage.getItem("reactionTimeRecord")
+
+                if (reactionTimeRecord === null) {
+                    localStorage.setItem("reactionTimeRecord", reactionTime)
+                } else if (reactionTime < parseInt(reactionTimeRecord)) {
+                    localStorage.setItem("reactionTimeRecord", reactionTime)
+
+                    h1.textContent += " - New record!"
+                }
+            } else if (currentStatus === "clicked") {
+                updateStatus("idle")
+            }
+        })
+    </script>
+</body>
+</html>
